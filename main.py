@@ -52,9 +52,23 @@ print(basePath)
 #
 # 既存のファイルの消去
 #
+#from pre_process.deleter import deleter
+#deleter([basePath + 'text_intermediate/'])
+
+
+import os
 from pre_process.deleter import deleter
 
-deleter([basePath + 'text_intermediate/'])
+target_path = basePath + 'text_intermediate/'
+
+# フォルダが存在する場合のみ削除を実行
+if os.path.exists(target_path):
+    deleter([target_path])
+else:
+    print(f"Skipped: {target_path} は存在しません。")
+
+
+
 #
 # 前準備 
 #
@@ -104,6 +118,18 @@ from pre_process.inputGroupSub.tojsonBuyAndPlaceList import tojsonBuyAndPlaceLis
 sg = singleGroup(input_config)
 tbk = tojsonBuyAndPlaceList()
 
+#
+# 保存フォルダの存在確認
+#
+from pathlib import Path
+# 保存したいファイルのフルパスを指定
+file_path = Path(basePath + 'text_intermediate/')
+
+# 1. 親フォルダ（text_intermediate）が存在するか確認し、なければ作成する
+# parents=True : 中間の '2025' などもなければ一緒に作成します
+# exist_ok=True : 既にフォルダがある場合にエラーにせず無視します
+file_path.mkdir(parents=True, exist_ok=True)
+
 [save_intermediate(jd, basePath + 'text_intermediate/' + jd[0]['fname']) for jd in tbk.getJsonList(allFile['kaigi'], input_config)]
 [save_intermediate(jd, basePath + 'text_intermediate/' + jd[0]['fname']) for jd in tbk.getJsonList(allFile['shoumouhin'], input_config)]
 [save_intermediate(jd, basePath + 'text_intermediate/' + jd[0]['fname']) for jd in tbk.getJsonList(allFile['book'], input_config)]
@@ -112,6 +138,15 @@ tbk = tojsonBuyAndPlaceList()
 #tbk.toJson(allFile['tushin'])
 #sg.toJson(allFile['single'], basePath + 'text_intermediate/')
 [save_intermediate(jd, basePath + 'text_intermediate/' + jd[0]['fname']) for jd in tbk.getJsonList(allFile['single'], input_config)]
+
+
+# 保存したいファイルのフルパスを指定
+file_path = Path(basePath + 'text_exclude/')
+
+# 1. 親フォルダ（text_intermediate）が存在するか確認し、なければ作成する
+# parents=True : 中間の '2025' などもなければ一緒に作成します
+# exist_ok=True : 既にフォルダがある場合にエラーにせず無視します
+file_path.mkdir(parents=True, exist_ok=True)
 
 #帳簿外のデータ
 [save_exclude(jd, basePath + 'text_exclude/' + jd[0]['fname']) for jd in tbk.getJsonList(allFile['exclude'], input_config)]
@@ -150,6 +185,16 @@ templateFunc = templater.templater(tempHjson)    #templateのセレクタ関数
 
 from parse_reciept import parseRecieptKanFromTemplate
 prk = parseRecieptKanFromTemplate.parseRecieptKan(templateFunc)
+
+
+# 保存したいファイルのフルパスを指定
+file_path = Path(basePath + 'text_output/')
+
+# 1. 親フォルダ（text_intermediate）が存在するか確認し、なければ作成する
+# parents=True : 中間の '2025' などもなければ一緒に作成します
+# exist_ok=True : 既にフォルダがある場合にエラーにせず無視します
+file_path.mkdir(parents=True, exist_ok=True)
+
 
 [save_output(prk.parsePerFile(jKey, intermediateAll[jKey], year, templateFunc.getTemplateByFname(jKey)), basePath + 'text_output/' + jKey) for jKey in intermediateAll]
 
